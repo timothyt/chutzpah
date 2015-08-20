@@ -11,6 +11,8 @@ namespace Chutzpah.Utility
         private const string BrowserChromeRegPath = "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Chrome.EXE";
         private const string BrowserFirefoxRegPath = "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Firefox.exe";
         private const string DefaultBrowserProdIdPath = "Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice";
+        private const string BrowserEdgeProtocolHandlerRegPath = "SOFTWARE\\Classes\\microsoft-edge";
+        private const string EdgeProtocolUrl = "microsoft-edge:{0}";
 
         public static string GetBrowserPath(string browserName)
         {
@@ -42,6 +44,14 @@ namespace Chutzpah.Utility
             bool hasRegEntry = false;
             switch (browserName.ToLower())
             {
+                case "edge":
+                    hasRegEntry = TryRetrieveRegistryKeyValue(Registry.CurrentUser, BrowserEdgeProtocolHandlerRegPath, null, out browserPath);
+                    if(hasRegEntry)
+                    {
+                        return EdgeProtocolUrl;
+                    }
+
+                    break;
                 case "ie":
                     hasRegEntry = TryRetrieveRegistryKeyValue(Registry.LocalMachine, BrowserIERegPath, null, out browserPath);
                     break;

@@ -244,6 +244,7 @@ namespace Chutzpah
             if (!string.IsNullOrEmpty(value))
             {
                 if (value.Equals("ie", StringComparison.InvariantCultureIgnoreCase) ||
+                    value.Equals("edge", StringComparison.InvariantCultureIgnoreCase) ||
                     value.Equals("chrome", StringComparison.InvariantCultureIgnoreCase) ||
                     value.Equals("firefox", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -251,7 +252,7 @@ namespace Chutzpah
                 }
                 else
                 {
-                    throw new ArgumentException("invalid browser name, expecting either ie, chrome or firefox");
+                    throw new ArgumentException("invalid browser name, expecting either edge, ie, chrome or firefox");
                 }
             }
         }

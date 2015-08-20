@@ -116,8 +116,16 @@ namespace Chutzpah
             if (!string.IsNullOrEmpty(browserAppPath))
             {
                 startInfo.UseShellExecute = true;
-                startInfo.FileName = browserAppPath;
-                startInfo.Arguments = file;
+
+                if ("edge".Equals(browserName, StringComparison.OrdinalIgnoreCase))
+                {
+                    startInfo.FileName = string.Format(browserAppPath, file);
+                }
+                else
+                {
+                    startInfo.FileName = browserAppPath;
+                    startInfo.Arguments = file;
+                }
             }
             else
             {
