@@ -59,7 +59,7 @@ namespace Chutzpah.Facts
             service.ClassUnderTest.Compile(new[] { context });
 
             service.Mock<IProcessHelper>().Verify(x => x.RunBatchCompileProcess(It.IsAny<BatchCompileConfiguration>()), Times.Never());
-            Assert.Null(context.ReferencedFiles.ElementAt(0).GeneratedFilePath);
+            Assert.NotNull(context.ReferencedFiles.ElementAt(0).GeneratedFilePath);
         }
 
         [Fact]
