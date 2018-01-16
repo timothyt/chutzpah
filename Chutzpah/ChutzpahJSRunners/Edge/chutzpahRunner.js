@@ -61,9 +61,8 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
         async function intervalHandler() {
             debugLog("intervalHandler");
             var now = new Date().getTime();
-
+            isDone = testIfDone();
             if (!isDone && ((now - startTime) < maxtimeOutMillis)) {
-                isDone = await testIfDone();
                 return -1; // Not done, try again
             } else {
                 if (!isDone) {
@@ -73,7 +72,6 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
                 }
             }
         }
-
 
         while (result < 0) {
             debugLog("@@@ wait...: " + result);
@@ -90,14 +88,8 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
     async function pageOpenHandler(evaluate) {
         debugLog("pageOpenHandler");
 
-        var waitCondition = async () => {
-            let result = await evaluate(isTestingDone);
-            debugLog("@@@ waitCondition result: " + JSON.stringify(result));
-            return result.result && result.result.value;
-        };
-
         debugLog("Promise in pageOpenHandler");
-        // Initialize startTime, this will get updated everytime we recieve 
+        // Initialize startTime, this will get updated everytime we recieve
         // content from the test framework
         updateEventTime();
         debugLog("First trySetupTestFramework");
@@ -106,10 +98,6 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
 
         debugLog("Evaluate onPageLoaded");
         await evaluate(onPageLoaded);
-
-
-        debugLog("Calling waitFor...");
-        return await waitFor(waitCondition, timeOut);
     }
 
     async function pageInitializedHandler(evaluate) {
@@ -136,7 +124,7 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
           let result = ${str};
           if (result instanceof Promise) {
             result;
-          } 
+          }
           else {
             let json = JSON.stringify(result);
             json;
@@ -148,13 +136,18 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
     const puppeteer = require('puppeteer');
 
     debugLog("Launch Chrome");
-    const browser = await puppeteer.launch({ headless: true });
+    //const browser = await puppeteer.launch({ headless: false, args: [
+    //'--allow-file-access-from-files'
+    //],executablePath:"C:/Users/timth/AppData/Local/Microsoft/VisualStudio/15.0_58b2b127/Extensions/qt3zt32i.p4l/node_modules/puppeteer/.local-chromium/win64-515411/chrome-win32/chrome.exe"  });
+    const browser = await puppeteer.launch({ headless: false, args: [
+    '--allow-file-access-from-files'
+    ]});
     const page = await browser.newPage();
 
     try {
 
         if (userAgent) {
-            page.setUserAgen(userAgent);
+            page.setUserAgent(userAgent);
         }
 
         const evaluate = async (func) => { return await page.evaluate(wrapFunctionForEvaluation(func)); };
@@ -162,8 +155,8 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
         var chutzpahFunctions = chutzpahCommon.getCommonFunctions(function (status) { callback(null, status) }, updateEventTime, inputParams.onMessage);
 
         page.on('requestfinished', (async (request) => {
-            chutzpahFunctions.rawLog("!!_!! Resource Recieved: " + request.url);
-            await trySetupTestFramework(evaluate);
+            //chutzpahFunctions.rawLog("!!_!! Resource Recieved: " + request.url);
+            //await trySetupTestFramework(evaluate);
         }));
 
         page.on('requestfailed', ((request) => {
@@ -203,7 +196,11 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
         await pageInitializedHandler(evaluate);
 
         debugLog("### calling pageOpenHandler");
-        finalResult = await pageOpenHandler(evaluate);
+        await pageOpenHandler(evaluate);
+
+
+        debugLog("Calling waitFor...");
+        finalResult = await waitFor(chutzpahFunctions.IsTestingFinished, timeout);
         debugLog("Just about done: " + finalResult);
 
     } catch (err) {
@@ -219,8 +216,6 @@ module.exports.runner = async (inputParams, callback, onInitialized, onPageLoade
     }
 
     debugLog("Closed client");
-
     debugLog("Calling callback");
-    callback(null, finalResult);
-
+    callback(null, 0);
 };

@@ -6,6 +6,8 @@ var chutzpah = chutzpah || {};
 chutzpah.getCommonFunctions = function (exit, updateEventTime, writer) {
     var functions = {};
 
+    var isTestingFinished = false;
+
     function wrap(txt) {
         return '#_#' + txt + '#_# ';
     };
@@ -24,18 +26,33 @@ chutzpah.getCommonFunctions = function (exit, updateEventTime, writer) {
             case 'CoverageObject':
                 var str = wrap(eventObj.type) + json;
                 // Don't ask me why but Phantom NEEDS me to literally write console.log for it to work
-                writer ? writer(str) : console.log(str);
+                //writer ? writer(str) : console.log(str);
+                writer(str, function (error, result) {
+                    if (error) throw error;
+                    console.log(str);
+                });
                 break;
 
             case 'FileDone':
                 var str = wrap(eventObj.type) + json;
-                writer ? writer(str) : console.log(str);
-                exit(eventObj.failed > 0 ? 1 : 0);
+                //writer ? writer(str) : console.log(str);
+                writer(str, function (error, result) {
+                    if (error) throw error;
+                    console.log(str);
+                });
+
+                isTestingFinished = true;
+
+                //exit(eventObj.failed > 0 ? 1 : 0);
                 break;
 
             default:
                 break;
         }
+    };
+
+    functions.IsTestingFinished = function() {
+      return isTestingFinished;
     };
 
     functions.captureLogMessage = function (message) {

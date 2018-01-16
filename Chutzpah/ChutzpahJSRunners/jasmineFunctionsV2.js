@@ -146,7 +146,7 @@ function onJasmineLoaded() {
 
 function onPageLoaded() {
     console.log("!!_!! onPageLoaded");
-
+    window.chutzpah.start();
     if (!window.chutzpah.usingModuleLoader && window.chutzpah.autoStart !== false) {
         (window.chutzpah.start || window.initializeJasmine)();
     }

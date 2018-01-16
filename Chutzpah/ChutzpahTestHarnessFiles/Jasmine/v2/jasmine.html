@@ -33,13 +33,12 @@
 
                 window.chutzpah.start = function() {
                     window.chutzpah.amdImport(amdTestPaths, function () {
-
-                        console.log("!!_!! Stating Jasmine from AMD callback...");
+                        console.log("!!_!! Starting Jasmine from AMD callback...");
                         window.initializeJasmine();
                     });
                 };
 
-                if(window.chutzpah.autoStart !== false) {
+                if(!window.chutzpah.phantom && window.chutzpah.autoStart !== false) {
                     window.chutzpah.start();
                 }
 
@@ -48,7 +47,7 @@
 
                 window.chutzpah.start = function() {
                     console.log("!!_!! Stating Jasmine...");
-                    window.initializeJasmine();  
+                    window.initializeJasmine();
                 };
 
                 var currentWindowOnload = window.onload;
